@@ -109,13 +109,11 @@ export class AuthService {
    * @memberof AuthService
    */
   getTokenHeader(): HttpHeaders {
-    const user = ['undefined', null]
-      .indexOf(localStorage.getItem('user')) === -1 ?
-      JSON.parse(localStorage.getItem('user')) : {};
+    const token = JSON.parse(localStorage.getItem('token'));
 
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': user.token ? `Token ${user.token}` : ''
+      'Authorization': token ? `Token ${token}` : ''
     });
   }
 
