@@ -1,6 +1,6 @@
 import * as auth from '../actions/auth.actions';
-import { User } from '../../models/user';
 import { AuthState as State, AuthStateRecord } from './auth.state';
+
 export { State as AuthState };
 
 export const initialState: State = new AuthStateRecord() as State;

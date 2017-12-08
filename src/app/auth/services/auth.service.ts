@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Authenticate, User } from '../models/user';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ToastyService } from 'ng2-toasty';
+import { of } from 'rxjs/observable/of';
 
 @Injectable()
 export class AuthService {
@@ -17,14 +18,13 @@ export class AuthService {
    */
   login({ username, password }: Authenticate): Observable<User> {
     return this.http
-      .post<{ data: User }>('http://localhost:8000/api-token-auth/', {
+      .post<{ data: User }>('http://localhost:8000/auth/', {
         username,
         password,
       }, { observe: 'response' })
-      .map(res => {
-        const user = res.body.data;
+      .map((res: any) => {
         this.setTokenInLocalStorage(res);
-        return user;
+        return res.body.user;
       })
       .do(
         _ => _,
@@ -64,16 +64,20 @@ export class AuthService {
   }
 
   /**
-   *
+   *sho
    *
    * @returns {Observable<boolean>}
    * @memberof AuthService
    */
   authorized(): Observable<boolean> {
-    return this.http
-      .get<{ status: boolean }>('users/check_authenticated')
-      .retry(2)
-      .map(body => body.status);
+    // return this.http
+    //   .get<{ status: boolean }>('http://localhost:8000/check_authenticated/')
+    //   .retry(2)
+    //   .map(body => body.status);
+    if (JSON.parse(localStorage.getItem('token'))) {
+      return of(true);
+    }
+    return of(false);
   }
 
   /**
@@ -83,9 +87,7 @@ export class AuthService {
    * @memberof AuthService
    */
   current_user(): Observable<User> {
-    return this.http
-      .get<User>('users/whoami')
-      .map(body => body);
+    return of(JSON.parse(localStorage.getItem('user')));
   }
 
   /**
@@ -96,12 +98,8 @@ export class AuthService {
    * @memberof AuthService
    */
   logout() {
-    return this.http
-      .delete<{ success: boolean }>('auth/sign_out')
-      .map(body => {
-        localStorage.removeItem('user');
-        return body.success;
-      });
+    localStorage.clear();
+    return of(true);
   }
 
   /**
@@ -117,20 +115,12 @@ export class AuthService {
 
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      'token-type': 'Bearer',
-      'access_token': user.access_token || [],
-      'client': user.client || [],
-      'uid': user.uid || [],
+      'Authorization': user.token ? `Token ${user.token}` : ''
     });
   }
 
   private setTokenInLocalStorage(res): void {
-    const user_data = {
-      ...res.body.data,
-      access_token: res.headers.get('access-token'),
-      client: res.headers.get('client'),
-    };
-    const jsonData = JSON.stringify(user_data);
-    localStorage.setItem('user', jsonData);
+    localStorage.setItem('user', JSON.stringify(res.body.user));
+    localStorage.setItem('token', JSON.stringify(res.body.token));
   }
 }

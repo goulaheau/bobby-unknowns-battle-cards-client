@@ -9,6 +9,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { TokenInterceptor } from '../auth/interceptors/token.interceptor';
 
 import { AppComponent } from './containers/app/app.component';
+import { DecksService } from './services/decks.service';
 
 export const COMPONENTS = [
   AppComponent,
@@ -31,7 +32,8 @@ export class CoreModule {
       ngModule: CoreModule,
       providers: [
         { provide: HTTP_INTERCEPTORS, useClass: TokenInterceptor, multi: true },
-        { provide: HTTP_INTERCEPTORS, useClass: NgProgressInterceptor, multi: true }
+        { provide: HTTP_INTERCEPTORS, useClass: NgProgressInterceptor, multi: true },
+        DecksService
       ],
     };
   }
