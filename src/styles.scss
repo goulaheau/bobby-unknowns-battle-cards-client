@@ -22,3 +22,16 @@ ul.dropdown-menu.left {
   right: 0 !important;
   left: inherit !important;
 }
+
+.actions {
+  white-space: nowrap;
+  width: 1%;
+
+  .btn {
+    padding: 1px 3px;
+
+    i {
+      cursor: pointer;
+    }
+  }
+}
