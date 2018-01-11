@@ -1,0 +1,24 @@
+<table class="table">
+  <thead class="thead-light">
+  <tr>
+    <th scope="col">#</th>
+    <th scope="col">Joueur</th>
+    <th scope="col" class="actions"></th>
+  </tr>
+  </thead>
+  <tbody>
+  <ng-container *ngFor="let game of games">
+    <tr *ngIf="!game.opponent">
+      <th scope="row">{{ game.id }}</th>
+      <td>{{ game.owner }}</td>
+      <td class="actions">
+        <a
+          [routerLink]="'/games/' + game.id"
+          class="btn btn-outline-primary">
+          <i class="fa fa-gamepad"></i>
+        </a>
+      </td>
+    </tr>
+  </ng-container>
+  </tbody>
+</table>

@@ -1,0 +1,10 @@
+<div class="row" *ngIf="deck$ | async as deck">
+  <div class="col">
+    <app-deck-form
+      [deck]="deck"
+      [cards]="cards$ | async"
+      (save)="onSave($event)"
+      (update)="onUpdate($event)">
+    </app-deck-form>
+  </div>
+</div>

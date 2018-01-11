@@ -12,6 +12,11 @@ const routes: Routes = [
     path: 'decks',
     loadChildren: './decks/decks.module#DecksModule',
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'games',
+    loadChildren: './games/games.module#GamesModule',
+    canActivate: [AuthGuard]
   }
 ];
 

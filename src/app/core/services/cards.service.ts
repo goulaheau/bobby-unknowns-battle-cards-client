@@ -23,14 +23,14 @@ export class CardsService {
   }
 
   put(id: number, card: Card): Observable<Card> {
-    return this.http.put<Card>(`${this.url}${id}`, card);
+    return this.http.put<Card>(`${this.url}${id}/`, card);
   }
 
   patch(id: number, card: Card): Observable<Card> {
-    return this.http.patch<Card>(`${this.url}${id}`, card);
+    return this.http.patch<Card>(`${this.url}${id}/`, card);
   }
 
   delete(id: number): Observable<Card> {
-    return this.http.delete<Card>(`${this.url}${id}`);
+    return this.http.delete<Card>(`${this.url}${id}/`);
   }
 }
