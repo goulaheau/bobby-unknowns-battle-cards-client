@@ -12,18 +12,24 @@
       </button>
     </h2>
 
-    <app-game-list
-      *ngIf="games$ | async as games"
-      [games]="games"
-    >
-    </app-game-list>
+    <ng-container *ngIf="games$ | async as games">
+      <ng-container *ngIf="decks$ | async as decks">
+        <app-game-list
+          [games]="games"
+          [decks]="decks"
+          [user]="user_id"
+          (join)="onJoin($event)"
+        >
+        </app-game-list>
+      </ng-container>
+    </ng-container>
   </div>
 </div>
 
-<app-game-form-modal
+<app-game-create-modal
   *ngIf="decks$ | async as decks"
   modalName="newGameModal"
   [decks]="decks"
   (create)="onCreate($event)"
 >
-</app-game-form-modal>
+</app-game-create-modal>

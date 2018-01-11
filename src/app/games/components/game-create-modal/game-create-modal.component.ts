@@ -5,18 +5,19 @@ import {
   OnInit,
   Output,
   ViewEncapsulation,
-} from '@angular/core';
+}               from '@angular/core';
 import { Deck } from '../../../decks/models/deck';
+import { Game } from '../../models/game';
 
 declare var $: any;
 
 @Component({
-  selector: 'app-game-form-modal',
-  templateUrl: './game-form-modal.component.html',
-  styleUrls: ['./game-form-modal.component.scss'],
+  selector: 'app-game-create-modal',
+  templateUrl: './game-create-modal.component.html',
+  styleUrls: ['./game-create-modal.component.scss'],
   encapsulation: ViewEncapsulation.None,
 })
-export class GameFormModalComponent implements OnInit {
+export class GameCreateModalComponent implements OnInit {
   deck: number;
 
   @Input() modalName: string;
@@ -30,8 +31,8 @@ export class GameFormModalComponent implements OnInit {
   ngOnInit() {
   }
 
-  onSubmit(): void {
+  onCreate(): void {
     this.create.emit({ deck: this.deck });
-    $(`#${this.modalName}`).close();
+    $(`#${this.modalName}`).modal('hide');
   }
 }

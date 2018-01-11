@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GameFormModalComponent } from './game-form-modal.component';
+import { GameFormModalComponent } from './game-join-modal.component';
 
 describe('GameFormModalComponent', () => {
   let component: GameFormModalComponent;

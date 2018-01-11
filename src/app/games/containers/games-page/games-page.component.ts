@@ -51,4 +51,15 @@ export class GamesPageComponent implements OnInit {
         },
       );
   }
+
+  onJoin(game: Game): void {
+    this.gamesService
+      .put(game.id, game)
+      .subscribe(
+        gameUpdated => {
+          this.router.navigate(['/games', gameUpdated.id]);
+        }
+      );
+  }
+
 }
