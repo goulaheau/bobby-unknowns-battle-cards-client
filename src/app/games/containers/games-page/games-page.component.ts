@@ -53,6 +53,12 @@ export class GamesPageComponent implements OnInit {
   }
 
   onJoin(game: Game): void {
+    for (const property of Object.keys(game)) {
+      if (game[property] instanceof Array && game[property].length === 0) {
+        delete game[property];
+      }
+    }
+
     this.gamesService
       .put(game.id, game)
       .subscribe(

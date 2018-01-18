@@ -1,9 +1,9 @@
 import {
   Component, EventEmitter, Input, OnInit, Output,
   ViewEncapsulation,
-} from '@angular/core';
-import { Deck }                                         from '../../../decks/models/deck';
-import { Game }                                         from '../../models/game';
+}               from '@angular/core';
+import { Deck } from '../../../decks/models/deck';
+import { Game } from '../../models/game';
 
 @Component({
   selector: 'app-game-list',

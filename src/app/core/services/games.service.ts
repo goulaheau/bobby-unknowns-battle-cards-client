@@ -1,27 +1,24 @@
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs/Observable';
-import {Game} from '../../games/models/game';
-import {UsersService} from './users.service';
-import {WebSocketService} from './web-socket.service';
-import {Subject} from 'rxjs/Subject';
+import { Injectable }       from '@angular/core';
+import { HttpClient }       from '@angular/common/http';
+import { Observable }       from 'rxjs/Observable';
+import { Game }             from '../../games/models/game';
+import { UsersService }     from './users.service';
+import { WebSocketService } from './web-socket.service';
+import { Subject }          from 'rxjs/Subject';
 
 @Injectable()
 export class GamesService {
-  private url = 'http://localhost:8000/games/';
+  private url   = 'http://localhost:8000/games/';
   private wsUrl = 'ws://localhost:8000/games/';
 
-  constructor(private http: HttpClient,
-              private usersService: UsersService,
-              private wsService: WebSocketService) {
+  constructor(
+    private http: HttpClient,
+    private usersService: UsersService,
+    private wsService: WebSocketService) {
   }
 
-  connect(game_id: number, user_id: number): void {
-    this.wsService.connect(`${this.wsUrl}${game_id}/${user_id}/`);
-  }
-
-  disconnect(): void {
-    this.wsService.disconnect();
+  connect(game_id: number, user_id: number): WebSocket {
+    return this.wsService.connect(`${this.wsUrl}${game_id}/${user_id}/`);
   }
 
   getAll(): Observable<Game[]> {
