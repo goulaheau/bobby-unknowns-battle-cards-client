@@ -36,7 +36,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
             this.socket           = this.gamesService.connect(this.game_id, this.user.id);
             this.socket.onmessage = this.onMessage.bind(this);
 
-            setTimeout(() => {
+            this.socket.onopen = (ev: MessageEvent) => {
               this.gamesService.get(this.game_id).subscribe(
                 game => {
                   this.game = game;
@@ -48,7 +48,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
                   }
                 },
               );
-            });
+            };
           }
         });
       },
