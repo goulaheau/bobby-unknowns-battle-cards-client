@@ -34,23 +34,24 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
           if (this.game_id) {
             this.socket           = this.gamesService.connect(this.game_id, this.user.id);
+            this.socket.onopen    = this.initGame.bind(this);
             this.socket.onmessage = this.onMessage.bind(this);
-
-            this.socket.onopen = (ev: MessageEvent) => {
-              this.gamesService.get(this.game_id).subscribe(
-                game => {
-                  this.game = game;
-
-                  if (this.game.player_turn === null
-                    && this.game.opponent === this.user.id
-                  ) {
-                    this.sendMessage('init');
-                  }
-                },
-              );
-            };
           }
         });
+      },
+    );
+  }
+
+  initGame(): void {
+    this.gamesService.get(this.game_id).subscribe(
+      game => {
+        this.game = game;
+
+        if (this.game.player_turn === null
+          && this.game.opponent === this.user.id
+        ) {
+          this.sendMessage('init');
+        }
       },
     );
   }
@@ -80,7 +81,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     this.draggedCard = card;
   }
 
-  drop(event) {
+  drop() {
     if (this.draggedCard) {
       const draggedCardIndex = this.findIndex(this.draggedCard);
 

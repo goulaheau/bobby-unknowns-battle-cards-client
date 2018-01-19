@@ -54,7 +54,7 @@
 
   <div class="row"
        pDroppable="owner"
-       (onDrop)="drop($event)"
+       (onDrop)="drop()"
        style="height: 20%;">
     <ng-container *ngIf="user.id === game.owner.id">
       <div *ngFor="let card of game.owner_board_cards"
