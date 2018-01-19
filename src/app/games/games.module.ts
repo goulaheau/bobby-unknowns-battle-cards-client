@@ -1,6 +1,7 @@
 import { CommonModule }             from '@angular/common';
 import { NgModule }                 from '@angular/core';
 import { FormsModule }              from '@angular/forms';
+import { DragDropModule }           from 'primeng/primeng';
 import { GameCreateModalComponent } from './components/game-create-modal/game-create-modal.component';
 import { GameJoinModalComponent }   from './components/game-join-modal/game-join-modal.component';
 import { GameListComponent }        from './components/game-list/game-list.component';
@@ -13,6 +14,7 @@ import { GamesRoutingModule }       from './games-routing.module';
     CommonModule,
     FormsModule,
     GamesRoutingModule,
+    DragDropModule
   ],
   declarations: [
     GamesPageComponent,

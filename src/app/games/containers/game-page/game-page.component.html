@@ -1,7 +1,112 @@
-<button
-  (click)="send()"
-  type="button"
-  class="btn"
->
-  Envoyer
-</button>
+<ng-container *ngIf="!game?.player_turn">
+  <div class="row"
+       style="height: 100%;">
+    <div class="col">
+      En attente d'un adversaire ...
+    </div>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="game?.player_turn">
+  <div class="row"
+       style="height: 10%;">
+    <div class="col">
+      <ng-container *ngIf="user.id === game.owner.id">
+        {{ game.opponent.username }}
+      </ng-container>
+      <ng-container *ngIf="user.id !== game.owner.id">
+        {{ game.owner.username }}
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="row"
+       style="height: 20%;">
+    <ng-container *ngIf="user.id === game.owner.id">
+      <div *ngFor="let card of game.opponent_hand_cards" class="col">
+        <div class="card">
+          Dos retourné
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="user.id !== game.owner.id">
+      <div *ngFor="let card of game.owner_hand_cards" class="col">
+        <div class="card">
+          Dos retourné
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="row"
+       style="height: 20%;">
+    <ng-container *ngIf="user.id === game.owner.id">
+      <div *ngFor="let card of game.opponent_board_cards" class="col">
+        {{ card.name }}
+      </div>
+    </ng-container>
+    <ng-container *ngIf="user.id !== game.owner.id">
+      <div *ngFor="let card of game.owner_board_cards" class="col">
+        {{ card.name }}
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="row"
+       pDroppable="owner"
+       (onDrop)="drop($event)"
+       style="height: 20%;">
+    <ng-container *ngIf="user.id === game.owner.id">
+      <div *ngFor="let card of game.owner_board_cards"
+           class="col">
+        <div class="card">
+          {{ card.name }}
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="user.id !== game.owner.id">
+      <div *ngFor="let card of game.opponent_board_cards"
+           class="col">
+        <div class="card">
+          {{ card.name }}
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="row" style="height: 20%;">
+    <ng-container *ngIf="user.id === game.owner.id">
+      <div *ngFor="let card of game.owner_hand_cards"
+           class="col">
+        <div pDraggable="owner"
+             (onDragStart)="dragStart($event, card)"
+             (onDragEnd)="dragEnd($event)"
+             class="card">
+          {{ card.name }}
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="user.id !== game.owner.id">
+      <div *ngFor="let card of game.opponent_hand_cards"
+           class="col">
+        <div pDraggable="owner"
+             (onDragStart)="dragStart($event, card)"
+             (onDragEnd)="dragEnd($event)"
+             class="card">
+          {{ card.name }}
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="row" style="height: 10%;">
+    <div class="col">
+      <ng-container *ngIf="user.id === game.owner.id">
+        {{ game.owner.username }}
+      </ng-container>
+      <ng-container *ngIf="user.id !== game.owner.id">
+        {{ game.opponent.username }}
+      </ng-container>
+    </div>
+  </div>
+</ng-container>
