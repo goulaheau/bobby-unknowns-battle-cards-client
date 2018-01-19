@@ -4,6 +4,6 @@ export interface Card {
   type?: string;
   cost?: number;
   health?: number;
-  strength?: number;
+  strengh?: number;
   effect?: string;
 }

@@ -41,13 +41,21 @@
   <div class="row"
        style="height: 20%;">
     <ng-container *ngIf="user.id === game.owner.id">
-      <div *ngFor="let card of game.opponent_board_cards" class="col">
-        {{ card.name }}
+      <div *ngFor="let cardValues of game.opponent_board_cards" class="col">
+        <div class="card">
+          {{ cardValues.card?.name }}<br>
+          {{ cardValues.strengh }} Atk<br>
+          {{ cardValues.health }} Vie
+        </div>
       </div>
     </ng-container>
     <ng-container *ngIf="user.id !== game.owner.id">
-      <div *ngFor="let card of game.owner_board_cards" class="col">
-        {{ card.name }}
+      <div *ngFor="let cardValues of game.owner_board_cards" class="col">
+        <div class="card">
+          {{ cardValues.card?.name }}<br>
+          {{ cardValues.strengh }} Atk<br>
+          {{ cardValues.health }} Vie
+        </div>
       </div>
     </ng-container>
   </div>
@@ -57,18 +65,22 @@
        (onDrop)="drop()"
        style="height: 20%;">
     <ng-container *ngIf="user.id === game.owner.id">
-      <div *ngFor="let card of game.owner_board_cards"
+      <div *ngFor="let cardValues of game.owner_board_cards"
            class="col">
         <div class="card">
-          {{ card.name }}
+          {{ cardValues.card?.name }}<br>
+          {{ cardValues.strengh }} Atk<br>
+          {{ cardValues.health }} Vie
         </div>
       </div>
     </ng-container>
     <ng-container *ngIf="user.id !== game.owner.id">
-      <div *ngFor="let card of game.opponent_board_cards"
+      <div *ngFor="let cardValues of game.opponent_board_cards"
            class="col">
         <div class="card">
-          {{ card.name }}
+          {{ cardValues.card?.name }}<br>
+          {{ cardValues.strengh }} Atk<br>
+          {{ cardValues.health }} Vie
         </div>
       </div>
     </ng-container>
@@ -82,7 +94,9 @@
              (onDragStart)="dragStart($event, card)"
              (onDragEnd)="dragEnd($event)"
              class="card">
-          {{ card.name }}
+          {{ card.name }}<br>
+          {{ card.strengh }} Atk<br>
+          {{ card.health }} Vie
         </div>
       </div>
     </ng-container>
@@ -93,7 +107,9 @@
              (onDragStart)="dragStart($event, card)"
              (onDragEnd)="dragEnd($event)"
              class="card">
-          {{ card.name }}
+          {{ card.name }}<br>
+          {{ card.strengh }} Atk<br>
+          {{ card.health }} Vie
         </div>
       </div>
     </ng-container>

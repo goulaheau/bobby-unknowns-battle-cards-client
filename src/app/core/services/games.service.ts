@@ -1,11 +1,12 @@
-import { Injectable }       from '@angular/core';
-import { HttpClient }       from '@angular/common/http';
-import { Observable }       from 'rxjs/Observable';
-import { Game }             from '../../games/models/game';
-import { CardsService }     from './cards.service';
-import { UsersService }     from './users.service';
-import { WebSocketService } from './web-socket.service';
-import { Subject }          from 'rxjs/Subject';
+import { Injectable }        from '@angular/core';
+import { HttpClient }        from '@angular/common/http';
+import { Observable }        from 'rxjs/Observable';
+import { Game }              from '../../games/models/game';
+import { CardValuesService } from './card-values.service';
+import { CardsService }      from './cards.service';
+import { UsersService }      from './users.service';
+import { WebSocketService }  from './web-socket.service';
+import { Subject }           from 'rxjs/Subject';
 
 @Injectable()
 export class GamesService {
@@ -16,7 +17,8 @@ export class GamesService {
     private http: HttpClient,
     private usersService: UsersService,
     private cardsService: CardsService,
-    private wsService: WebSocketService) {
+    private wsService: WebSocketService,
+    private cardValuesService: CardValuesService) {
   }
 
   connect(game_id: number, user_id: number): WebSocket {
@@ -51,6 +53,24 @@ export class GamesService {
                 return map;
               }, {});
 
+              this.cardValuesService.getAll().subscribe(
+                (cardValues: any) => {
+                  cardValues = cardValues.reduce((map, obj) => {
+                    map[obj.id] = obj;
+                    return map;
+                  }, {});
+
+                  for (const i in game.owner_board_cards) {
+                    game.owner_board_cards[i]      = cardValues[game.owner_board_cards[i]];
+                    game.owner_board_cards[i].card = cards[game.owner_board_cards[i].card];
+                  }
+                  for (const i in game.opponent_board_cards) {
+                    game.opponent_board_cards[i]   = cardValues[game.opponent_board_cards[i]];
+                    game.opponent_board_cards[i].card = cards[game.opponent_board_cards[i].card];
+                  }
+                },
+              );
+
               for (const i in game.owner_deck_cards) {
                 game.owner_deck_cards[i] = cards[game.owner_deck_cards[i]];
               }
@@ -62,12 +82,6 @@ export class GamesService {
               }
               for (const i in game.opponent_hand_cards) {
                 game.opponent_hand_cards[i] = cards[game.opponent_hand_cards[i]];
-              }
-              for (const i in game.owner_board_cards) {
-                game.owner_board_cards[i] = cards[game.owner_board_cards[i]];
-              }
-              for (const i in game.opponent_board_cards) {
-                game.opponent_board_cards[i] = cards[game.opponent_board_cards[i]];
               }
               for (const i in game.owner_graveyard_cards) {
                 game.owner_graveyard_cards[i] = cards[game.owner_graveyard_cards[i]];

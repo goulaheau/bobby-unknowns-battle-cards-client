@@ -12,12 +12,13 @@ import {
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { TokenInterceptor } from '../auth/interceptors/token.interceptor';
 
-import { AppComponent } from './containers/app/app.component';
-import { DecksService } from './services/decks.service';
-import { CardsService } from './services/cards.service';
-import { UsersService } from './services/users.service';
-import { WebSocketService } from './services/web-socket.service';
-import { GamesService } from './services/games.service';
+import { AppComponent }      from './containers/app/app.component';
+import { CardValuesService } from './services/card-values.service';
+import { DecksService }      from './services/decks.service';
+import { CardsService }      from './services/cards.service';
+import { UsersService }      from './services/users.service';
+import { WebSocketService }  from './services/web-socket.service';
+import { GamesService }      from './services/games.service';
 
 export const COMPONENTS = [
   AppComponent,
@@ -52,6 +53,7 @@ export class CoreModule {
         CardsService,
         UsersService,
         GamesService,
+        CardValuesService,
       ],
     };
   }
