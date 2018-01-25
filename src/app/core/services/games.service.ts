@@ -6,7 +6,6 @@ import { CardValuesService } from './card-values.service';
 import { CardsService }      from './cards.service';
 import { UsersService }      from './users.service';
 import { WebSocketService }  from './web-socket.service';
-import { Subject }           from 'rxjs/Subject';
 
 @Injectable()
 export class GamesService {
@@ -60,13 +59,13 @@ export class GamesService {
                     return map;
                   }, {});
 
-                  for (const i in game.owner_board_cards) {
-                    game.owner_board_cards[i]      = cardValues[game.owner_board_cards[i]];
-                    game.owner_board_cards[i].card = cards[game.owner_board_cards[i].card];
+                  for (const i in game.owner_board_card_values) {
+                    game.owner_board_card_values[i]      = cardValues[game.owner_board_card_values[i]];
+                    game.owner_board_card_values[i].card = cards[game.owner_board_card_values[i].card];
                   }
-                  for (const i in game.opponent_board_cards) {
-                    game.opponent_board_cards[i]   = cardValues[game.opponent_board_cards[i]];
-                    game.opponent_board_cards[i].card = cards[game.opponent_board_cards[i].card];
+                  for (const i in game.opponent_board_card_values) {
+                    game.opponent_board_card_values[i]   = cardValues[game.opponent_board_card_values[i]];
+                    game.opponent_board_card_values[i].card = cards[game.opponent_board_card_values[i].card];
                   }
                 },
               );

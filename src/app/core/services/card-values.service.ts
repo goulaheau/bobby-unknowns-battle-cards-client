@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
-import { CardValues } from '../../games/models/card-values';
+import { CardValue }  from '../../games/models/card-value';
 
 @Injectable()
 export class CardValuesService {
@@ -10,27 +10,27 @@ export class CardValuesService {
   constructor(private http: HttpClient) {
   }
 
-  getAll(): Observable<CardValues[]> {
-    return this.http.get<CardValues[]>(`${this.url}`);
+  getAll(): Observable<CardValue[]> {
+    return this.http.get<CardValue[]>(`${this.url}`);
   }
 
-  get(id: number): Observable<CardValues> {
-    return this.http.get<CardValues>(`${this.url}${id}/`);
+  get(id: number): Observable<CardValue> {
+    return this.http.get<CardValue>(`${this.url}${id}/`);
   }
 
-  post(cardValues: CardValues): Observable<CardValues> {
-    return this.http.post<CardValues>(this.url, cardValues);
+  post(cardValues: CardValue): Observable<CardValue> {
+    return this.http.post<CardValue>(this.url, cardValues);
   }
 
-  put(id: number, cardValues: CardValues): Observable<CardValues> {
-    return this.http.put<CardValues>(`${this.url}${id}/`, cardValues);
+  put(id: number, cardValues: CardValue): Observable<CardValue> {
+    return this.http.put<CardValue>(`${this.url}${id}/`, cardValues);
   }
 
-  patch(id: number, cardValues: CardValues): Observable<CardValues> {
-    return this.http.patch<CardValues>(`${this.url}${id}/`, cardValues);
+  patch(id: number, cardValues: CardValue): Observable<CardValue> {
+    return this.http.patch<CardValue>(`${this.url}${id}/`, cardValues);
   }
 
-  delete(id: number): Observable<CardValues> {
-    return this.http.delete<CardValues>(`${this.url}${id}/`);
+  delete(id: number): Observable<CardValue> {
+    return this.http.delete<CardValue>(`${this.url}${id}/`);
   }
 }

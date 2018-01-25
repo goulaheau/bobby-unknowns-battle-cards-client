@@ -18,8 +18,8 @@ export interface Game {
   owner_hand_cards?: any[];
   opponent_hand_cards?: any[];
 
-  owner_board_cards?: any[];
-  opponent_board_cards?: any[];
+  owner_board_card_values?: any[];
+  opponent_board_card_values?: any[];
 
   owner_graveyard_cards?: any[];
   opponent_graveyard_cards?: any[];

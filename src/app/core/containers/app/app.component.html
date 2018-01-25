@@ -1,7 +1,7 @@
 <ng-progress [speed]="200" [color]="'#fc6fb1'" [showSpinner]="false" [ease]="'easeOutQuad'" [trickleSpeed]="250"></ng-progress>
 <ng2-toasty [position]="'top-right'"></ng2-toasty>
 <app-header [isLoggedIn]="isLoggedIn$ | async" (logoutClick)="logout()"></app-header>
-<div class="container mt-3">
+<div class="container my-3">
   <router-outlet></router-outlet>
 </div>
 

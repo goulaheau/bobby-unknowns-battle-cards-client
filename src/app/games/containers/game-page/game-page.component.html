@@ -1,6 +1,5 @@
 <ng-container *ngIf="!game?.player_turn">
-  <div class="row"
-       style="height: 100%;">
+  <div class="row" style="height: 100%;">
     <div class="col">
       En attente d'un adversaire ...
     </div>
@@ -8,8 +7,7 @@
 </ng-container>
 
 <ng-container *ngIf="game?.player_turn">
-  <div class="row"
-       style="height: 10%;">
+  <div class="row" style="height: 10%;">
     <div class="col">
       <ng-container *ngIf="user.id === game.owner.id">
         {{ game.opponent.username }}
@@ -20,8 +18,7 @@
     </div>
   </div>
 
-  <div class="row"
-       style="height: 20%;">
+  <div class="row" style="height: 20%;">
     <ng-container *ngIf="user.id === game.owner.id">
       <div *ngFor="let card of game.opponent_hand_cards" class="col">
         <div class="card">
@@ -38,49 +35,76 @@
     </ng-container>
   </div>
 
-  <div class="row"
-       style="height: 20%;">
+  <div class="row" style="height: 20%;">
     <ng-container *ngIf="user.id === game.owner.id">
-      <div *ngFor="let cardValues of game.opponent_board_cards" class="col">
+      <div
+        *ngFor="let cardValue of game.opponent_board_card_values"
+        pDroppable="attack"
+        (onDrop)="dropAttacker(cardValue)"
+        class="col"
+      >
         <div class="card">
-          {{ cardValues.card?.name }}<br>
-          {{ cardValues.strengh }} Atk<br>
-          {{ cardValues.health }} Vie
+          {{ cardValue.card?.name }}<br>
+          {{ cardValue.card?.cost }} Mana<br>
+          {{ cardValue.strength }} Atk<br>
+          {{ cardValue.health }} Vie
         </div>
       </div>
     </ng-container>
     <ng-container *ngIf="user.id !== game.owner.id">
-      <div *ngFor="let cardValues of game.owner_board_cards" class="col">
+      <div
+        *ngFor="let cardValue of game.owner_board_card_values"
+        pDroppable="attack"
+        (onDrop)="dropAttacker(cardValue)"
+        class="col"
+      >
         <div class="card">
-          {{ cardValues.card?.name }}<br>
-          {{ cardValues.strengh }} Atk<br>
-          {{ cardValues.health }} Vie
+          {{ cardValue.card?.name }}<br>
+          {{ cardValue.card?.cost }} Mana<br>
+          {{ cardValue.strength }} Atk<br>
+          {{ cardValue.health }} Vie
         </div>
       </div>
     </ng-container>
   </div>
 
-  <div class="row"
-       pDroppable="owner"
-       (onDrop)="drop()"
-       style="height: 20%;">
+  <div
+    class="row"
+    pDroppable="play_card"
+    (onDrop)="dropCardToPlay()"
+    style="height: 20%;"
+  >
     <ng-container *ngIf="user.id === game.owner.id">
-      <div *ngFor="let cardValues of game.owner_board_cards"
-           class="col">
-        <div class="card">
-          {{ cardValues.card?.name }}<br>
-          {{ cardValues.strengh }} Atk<br>
-          {{ cardValues.health }} Vie
+      <div
+        *ngFor="let cardValue of game.owner_board_card_values"
+        class="col"
+      >
+        <div
+          pDraggable="attack"
+          (onDragStart)="dragAttacker(cardValue)"
+          class="card"
+        >
+          {{ cardValue.card?.name }}<br>
+          {{ cardValue.card?.cost }} Mana<br>
+          {{ cardValue.strength }} Atk<br>
+          {{ cardValue.health }} Vie
         </div>
       </div>
     </ng-container>
     <ng-container *ngIf="user.id !== game.owner.id">
-      <div *ngFor="let cardValues of game.opponent_board_cards"
-           class="col">
-        <div class="card">
-          {{ cardValues.card?.name }}<br>
-          {{ cardValues.strengh }} Atk<br>
-          {{ cardValues.health }} Vie
+      <div
+        *ngFor="let cardValue of game.opponent_board_card_values"
+        class="col"
+      >
+        <div
+          pDraggable="attack"
+          (onDragStart)="dragAttacker(cardValue)"
+          class="card"
+        >
+          {{ cardValue.card?.name }}<br>
+          {{ cardValue.card?.cost }} Mana<br>
+          {{ cardValue.strength }} Atk<br>
+          {{ cardValue.health }} Vie
         </div>
       </div>
     </ng-container>
@@ -90,12 +114,12 @@
     <ng-container *ngIf="user.id === game.owner.id">
       <div *ngFor="let card of game.owner_hand_cards"
            class="col">
-        <div pDraggable="owner"
-             (onDragStart)="dragStart($event, card)"
-             (onDragEnd)="dragEnd($event)"
+        <div pDraggable="play_card"
+             (onDragStart)="dragCardToPlay(card)"
              class="card">
           {{ card.name }}<br>
-          {{ card.strengh }} Atk<br>
+          {{ card.cost }} Mana<br>
+          {{ card.strength }} Atk<br>
           {{ card.health }} Vie
         </div>
       </div>
@@ -103,12 +127,12 @@
     <ng-container *ngIf="user.id !== game.owner.id">
       <div *ngFor="let card of game.opponent_hand_cards"
            class="col">
-        <div pDraggable="owner"
-             (onDragStart)="dragStart($event, card)"
-             (onDragEnd)="dragEnd($event)"
+        <div pDraggable="play_card"
+             (onDragStart)="dragCardToPlay(card)"
              class="card">
           {{ card.name }}<br>
-          {{ card.strengh }} Atk<br>
+          {{ card.cost }} Mana<br>
+          {{ card.strength }} Atk<br>
           {{ card.health }} Vie
         </div>
       </div>

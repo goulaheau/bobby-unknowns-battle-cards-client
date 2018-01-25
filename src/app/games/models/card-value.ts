@@ -1,9 +1,9 @@
-export interface CardValues {
+export interface CardValue {
   id?: number;
 
   user?: any;
   card?: any;
 
   health?: number;
-  strengh?: number;
+  strength?: number;
 }

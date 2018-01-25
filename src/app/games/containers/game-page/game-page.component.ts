@@ -1,11 +1,12 @@
-import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
-
-import { GamesService }   from '../../../core/services/games.service';
-import { ActivatedRoute } from '@angular/router';
-import { User }           from '../../../auth/models/user';
-import { AuthService }    from '../../../auth/services/auth.service';
-import { Card }           from '../../../decks/models/card';
-import { Game }           from '../../models/game';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute }               from '@angular/router';
+import { Message }                      from '../../../core/models/message';
+import { GamesService }                 from '../../../core/services/games.service';
+import { User }                         from '../../../auth/models/user';
+import { AuthService }                  from '../../../auth/services/auth.service';
+import { Card }                         from '../../../decks/models/card';
+import { CardValue }                    from '../../models/card-value';
+import { Game }                         from '../../models/game';
 
 @Component({
   selector: 'app-game-page',
@@ -17,7 +18,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
   game: Game;
   game_id: number;
   user: User;
-  draggedCard: Card | null;
+  cardToPlay: Card | null;
+  attacker: CardValue | null;
 
   constructor(
     private route: ActivatedRoute,
@@ -25,7 +27,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     private authService: AuthService) {
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.authService.current_user().subscribe(
       user => {
         this.user = user;
@@ -42,20 +44,6 @@ export class GamePageComponent implements OnInit, OnDestroy {
     );
   }
 
-  initGame(): void {
-    this.gamesService.get(this.game_id).subscribe(
-      game => {
-        this.game = game;
-
-        if (this.game.player_turn === null
-          && this.game.opponent === this.user.id
-        ) {
-          this.sendMessage('init');
-        }
-      },
-    );
-  }
-
   getGame(): void {
     this.gamesService.get(this.game_id).subscribe(
       game => {
@@ -64,137 +52,232 @@ export class GamePageComponent implements OnInit, OnDestroy {
     );
   }
 
-  sendMessage(action: string, payload: any = null): void {
-    this.socket.send(JSON.stringify({ action, payload }));
+  initGame(): void {
+    this.gamesService.get(this.game_id).subscribe(
+      game => {
+        this.game = game;
+
+        if (this.game.player_turn === null
+          && this.game.opponent === this.user.id
+        ) {
+          this.sendMessage({ action: 'init', payload: null });
+        }
+      },
+    );
   }
 
-  onMessage(messageEvent: MessageEvent) {
-    const message: {
-      action: string,
-      payload: any
-    } = JSON.parse(messageEvent.data);
-
-    switch (message.action) {
-      case 'init':
-        this.getGame();
-        break;
-      case 'play_card':
-        this.actionPlayCard(message);
-        break;
-    }
+  sendMessage(message: Message): void {
+    this.socket.send(JSON.stringify(message));
   }
 
-  actionPlayCard(message: { action: string, payload: any }): void {
+  onMessage(messageEvent: MessageEvent): void {
+    const message: Message = JSON.parse(messageEvent.data);
+
     if (this.user.id === message.payload.emitter) {
       if (!message.payload.success) {
         this.getGame();
       }
-    } else {
-      if (message.payload.success) {
-        let card_to_play = null;
-        if (this.user.id === this.game.owner.id) {
-          this.game.opponent_hand_cards.forEach(card => {
-            if (card.id === message.payload.card_to_play) {
-              card_to_play = card;
-            }
-          });
-          if (card_to_play) {
-            this.game.opponent_hand_cards  = this.game.opponent_hand_cards.filter(
-              card => card !== card_to_play,
-            );
-            const card_values_to_play = {
-              user: message.payload.emitter,
-              card: card_to_play,
-              health: card_to_play.health,
-              strengh: card_to_play.strengh,
-            };
-            this.game.opponent_board_cards = [
-              ...this.game.opponent_board_cards,
-              card_values_to_play,
-            ];
-          } else {
-            this.getGame();
-          }
-        } else {
-          this.game.owner_hand_cards.forEach(card => {
-            if (card.id === message.payload.card_to_play) {
-              card_to_play = card;
-            }
-          });
-          if (card_to_play) {
-            this.game.owner_hand_cards  = this.game.owner_hand_cards.filter(
-              card => card !== card_to_play,
-            );
-            const card_values_to_play = {
-              user: message.payload.emitter,
-              card: card_to_play,
-              health: card_to_play.health,
-              strengh: card_to_play.strengh,
-            };
-            this.game.owner_board_cards = [
-              ...this.game.owner_board_cards,
-              card_values_to_play,
-            ];
-          } else {
-            this.getGame();
-          }
-        }
+    } else if (message.payload.success) {
+      switch (message.action) {
+        case 'init':
+          this.getGame();
+          break;
+        case 'play_card':
+          this.actionPlayCard(message);
+          break;
+        case 'attack':
+          this.actionAttack(message);
+          break;
       }
     }
   }
 
-  dragStart(event, card: Card) {
-    this.draggedCard = card;
+  /**
+   * Card to play
+   */
+  dragCardToPlay(cardToPlay: Card): void {
+    this.cardToPlay = cardToPlay;
   }
 
-  drop() {
-    if (this.draggedCard) {
-      const draggedCardIndex = this.findIndex(this.draggedCard);
-      const draggedCardValues = {
-        user: this.user.id,
-        card: this.draggedCard,
-        health: this.draggedCard.health,
-        strengh: this.draggedCard.strengh,
-      };
+  dropCardToPlay(): void {
+    if (this.cardToPlay) {
+      this.actionPlayCard({
+        action: 'play_card',
+        payload: {
+          emitter: this.user.id,
+          card_to_play: this.cardToPlay.id,
+        },
+      });
 
-      if (this.user.id === this.game.owner.id) {
-        this.game.owner_hand_cards  = this.game.owner_hand_cards.filter((val, i) => i !== draggedCardIndex);
-        this.game.owner_board_cards = [...this.game.owner_board_cards, draggedCardValues];
-        this.sendMessage('play_card', { card_to_play: this.draggedCard.id });
+      this.sendMessage({
+        action: 'play_card',
+        payload: {
+          card_to_play: this.cardToPlay.id,
+        },
+      });
+
+      this.cardToPlay = null;
+    }
+  }
+
+  actionPlayCard(message: Message): void {
+    let card_to_play = null;
+    if (message.payload.emitter === this.game.owner.id) {
+      this.game.owner_hand_cards.forEach(card => {
+        if (card.id === message.payload.card_to_play) {
+          card_to_play = card;
+        }
+      });
+      if (card_to_play) {
+        this.game.owner_hand_cards = this.game.owner_hand_cards.filter(
+          card => card !== card_to_play,
+        );
+
+        const card_value_to_play = {
+          user: message.payload.emitter,
+          card: card_to_play,
+          health: card_to_play.health,
+          strength: card_to_play.strength,
+        };
+
+        this.game.owner_board_card_values = [
+          ...this.game.owner_board_card_values,
+          card_value_to_play,
+        ];
       } else {
-        this.game.opponent_hand_cards  = this.game.opponent_hand_cards.filter((val, i) => i !== draggedCardIndex);
-        this.game.opponent_board_cards = [...this.game.opponent_board_cards, draggedCardValues];
-        this.sendMessage('play_card', { card_to_play: this.draggedCard.id });
-      }
-
-      this.draggedCard = null;
-    }
-  }
-
-  dragEnd(event) {
-    this.draggedCard = null;
-  }
-
-  findIndex(card: Card) {
-    let index = -1;
-
-    if (this.user.id === this.game.owner.id) {
-      for (let i = 0; i < this.game.owner_hand_cards.length; i++) {
-        if (card.id === this.game.owner_hand_cards[i].id) {
-          index = i;
-          break;
-        }
+        this.getGame();
       }
     } else {
-      for (let i = 0; i < this.game.opponent_hand_cards.length; i++) {
-        if (card.id === this.game.opponent_hand_cards[i].id) {
-          index = i;
-          break;
+      this.game.opponent_hand_cards.forEach(card => {
+        if (card.id === message.payload.card_to_play) {
+          card_to_play = card;
         }
+      });
+      if (card_to_play) {
+        this.game.opponent_hand_cards = this.game.opponent_hand_cards.filter(
+          card => card !== card_to_play,
+        );
+
+        const card_value_to_play = {
+          user: message.payload.emitter,
+          card: card_to_play,
+          health: card_to_play.health,
+          strength: card_to_play.strength,
+        };
+
+        this.game.opponent_board_card_values = [
+          ...this.game.opponent_board_card_values,
+          card_value_to_play,
+        ];
+      } else {
+        this.getGame();
       }
     }
+  }
 
-    return index;
+  /**
+   * Attack
+   */
+  dragAttacker(attacker: CardValue): void {
+    this.attacker = attacker;
+  }
+
+  dropAttacker(victim: CardValue): void {
+    if (this.attacker) {
+      this.actionAttack({
+        action: 'attack',
+        payload: {
+          emitter: this.user.id,
+          attacker: this.attacker.card.id,
+          victim: victim.card.id,
+        },
+      });
+
+      this.sendMessage({
+        action: 'attack',
+        payload: {
+          attacker: this.attacker.card.id,
+          victim: victim.card.id,
+        },
+      });
+
+      this.attacker = null;
+    }
+  }
+
+  actionAttack(message: Message): void {
+    let attacker = null;
+    let victim   = null;
+    if (message.payload.emitter === this.game.owner.id) {
+      this.game.owner_board_card_values.forEach(cardValues => {
+        if (cardValues.card.id === message.payload.attacker) {
+          attacker = cardValues;
+        }
+      });
+
+      this.game.opponent_board_card_values.forEach(cardValues => {
+        if (cardValues.card.id === message.payload.victim) {
+          victim = cardValues;
+        }
+      });
+
+      if (attacker && victim) {
+        victim.health -= attacker.strength;
+        attacker.health -= victim.strength;
+
+        if (attacker.health <= 0) {
+          this.game.owner_board_card_values = this.game.owner_board_card_values.filter(
+            cardValue => cardValue.card.id !== attacker.card.id,
+          );
+
+          this.game.owner_graveyard_cards = [...this.game.owner_graveyard_cards, attacker.card];
+        }
+        if (victim.health <= 0) {
+          this.game.opponent_board_card_values = this.game.opponent_board_card_values.filter(
+            cardValue => cardValue.card.id !== victim.card.id,
+          );
+
+          this.game.opponent_graveyard_cards = [...this.game.opponent_graveyard_cards, victim.card];
+        }
+      } else {
+        this.getGame();
+      }
+    } else {
+      this.game.opponent_board_card_values.forEach(cardValues => {
+        if (cardValues.card.id === message.payload.attacker) {
+          attacker = cardValues;
+        }
+      });
+
+      this.game.owner_board_card_values.forEach(cardValues => {
+        if (cardValues.card.id === message.payload.victim) {
+          victim = cardValues;
+        }
+      });
+
+      if (attacker && victim) {
+        victim.health -= attacker.strength;
+        attacker.health -= victim.strength;
+
+        if (attacker.health <= 0) {
+
+          this.game.opponent_board_card_values = this.game.opponent_board_card_values.filter(
+            cardValue => cardValue.card.id !== attacker.card.id,
+          );
+
+          this.game.opponent_graveyard_cards = [...this.game.opponent_graveyard_cards, attacker.card];
+        }
+        if (victim.health <= 0) {
+          this.game.owner_board_card_values = this.game.owner_board_card_values.filter(
+            cardValue => cardValue.card.id !== victim.card.id,
+          );
+
+          this.game.owner_graveyard_cards = [...this.game.owner_graveyard_cards, victim.card];
+        }
+      } else {
+        this.getGame();
+      }
+    }
   }
 
   ngOnDestroy(): void {
