@@ -6,4 +6,5 @@ export interface CardValue {
 
   health?: number;
   strength?: number;
+  can_attack?: boolean;
 }

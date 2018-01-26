@@ -73,7 +73,10 @@ export class GamePageComponent implements OnInit, OnDestroy {
   onMessage(messageEvent: MessageEvent): void {
     const message: Message = JSON.parse(messageEvent.data);
 
-    if (this.user.id === message.payload.emitter) {
+    console.log(message.payload.success, message);
+
+    if (this.user.id === message.payload.emitter
+      && message.action !== 'end_turn') {
       if (!message.payload.success) {
         this.getGame();
       }
@@ -88,13 +91,26 @@ export class GamePageComponent implements OnInit, OnDestroy {
         case 'attack':
           this.actionAttack(message);
           break;
+        case 'end_turn':
+          this.actionEndTurn(message);
+          break;
       }
     }
   }
 
-  /**
-   * Card to play
-   */
+  // Card to play
+  canPlayCard(card: Card): boolean {
+    if (this.user.id === this.game.player_turn) {
+      if (this.user.id === this.game.owner.id) {
+        return card.cost <= this.game.owner_mana;
+      } else {
+        return card.cost <= this.game.opponent_mana;
+      }
+    } else {
+      return false;
+    }
+  }
+
   dragCardToPlay(cardToPlay: Card): void {
     this.cardToPlay = cardToPlay;
   }
@@ -129,6 +145,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
       });
       if (card_to_play) {
+        this.game.owner_mana -= card_to_play.cost;
+
         this.game.owner_hand_cards = this.game.owner_hand_cards.filter(
           card => card !== card_to_play,
         );
@@ -138,6 +156,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
           card: card_to_play,
           health: card_to_play.health,
           strength: card_to_play.strength,
+          can_attack: false,
         };
 
         this.game.owner_board_card_values = [
@@ -154,6 +173,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
         }
       });
       if (card_to_play) {
+        this.game.opponent_mana -= card_to_play.cost;
+
         this.game.opponent_hand_cards = this.game.opponent_hand_cards.filter(
           card => card !== card_to_play,
         );
@@ -163,6 +184,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
           card: card_to_play,
           health: card_to_play.health,
           strength: card_to_play.strength,
+          can_attack: false,
         };
 
         this.game.opponent_board_card_values = [
@@ -175,9 +197,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Attack
-   */
+  // Attack
   dragAttacker(attacker: CardValue): void {
     this.attacker = attacker;
   }
@@ -224,6 +244,7 @@ export class GamePageComponent implements OnInit, OnDestroy {
       if (attacker && victim) {
         victim.health -= attacker.strength;
         attacker.health -= victim.strength;
+        attacker.can_attack = false;
 
         if (attacker.health <= 0) {
           this.game.owner_board_card_values = this.game.owner_board_card_values.filter(
@@ -258,9 +279,9 @@ export class GamePageComponent implements OnInit, OnDestroy {
       if (attacker && victim) {
         victim.health -= attacker.strength;
         attacker.health -= victim.strength;
+        attacker.can_attack = false;
 
         if (attacker.health <= 0) {
-
           this.game.opponent_board_card_values = this.game.opponent_board_card_values.filter(
             cardValue => cardValue.card.id !== attacker.card.id,
           );
@@ -277,6 +298,43 @@ export class GamePageComponent implements OnInit, OnDestroy {
       } else {
         this.getGame();
       }
+    }
+  }
+
+  // End turn
+  endTurn(): void {
+    this.sendMessage({
+      action: 'end_turn',
+      payload: null,
+    });
+  }
+
+  actionEndTurn(message: Message): void {
+    this.game.turn += 1;
+    if (message.payload.emitter === this.game.owner.id) {
+      this.game.player_turn   = this.game.opponent.id;
+      this.game.opponent_mana = Math.ceil(this.game.turn / 2);
+
+      this.game.opponent_board_card_values.forEach(
+        cardValue => cardValue.can_attack = true,
+      );
+
+      this.game.opponent_hand_cards = [
+        ...this.game.opponent_hand_cards,
+        message.payload.card_draw,
+      ];
+    } else {
+      this.game.player_turn = this.game.owner.id;
+      this.game.owner_mana  = Math.ceil(this.game.turn / 2);
+
+      this.game.owner_board_card_values.forEach(
+        cardValue => cardValue.can_attack = true,
+      );
+
+      this.game.owner_hand_cards = [
+        ...this.game.owner_hand_cards,
+        message.payload.card_draw,
+      ];
     }
   }
 
