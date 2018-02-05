@@ -13,7 +13,9 @@
 
   <div class="board">
     <ng-container>
-      <div class="row" style="height: 10%;">
+      <div pDroppable="attack"
+           (onDrop)="dropAttacker('user')"
+           class="row" style="height: 10%;">
         <div class="col">
           <ng-container *ngIf="user.id === game.owner.id">
             <span>{{ game.opponent_health }} Vie</span>
@@ -199,5 +201,24 @@
             class="btn btn-sm">
       Finir le tour
     </button>
+  </div>
+</div>
+
+<div class="modal fade" id="modalWinner" tabindex="-1" role="dialog"
+     aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Partie finie</h5>
+      </div>
+      <div class="modal-body">
+        Gagnant : {{ winner?.username }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">
+          Accueil
+        </button>
+      </div>
+    </div>
   </div>
 </div>

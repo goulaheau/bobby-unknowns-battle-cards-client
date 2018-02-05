@@ -20,11 +20,18 @@ export class DecksService {
   get(id: number): Observable<Deck> {
     return this.http.get<Deck>(`${this.url}${id}/`).do(
       deck => {
-        for (const i in deck.cards) {
-          this.cardsService.get(deck.cards[i]).subscribe(
-            card => deck.cards[i] = card,
-          );
-        }
+        this.cardsService.getAll().subscribe(
+          (cards: any) => {
+            cards = cards.reduce((map, obj) => {
+              map[obj.id] = obj;
+              return map;
+            }, {});
+
+            for (const i in deck.cards) {
+              deck.cards[i] = cards[deck.cards[i]];
+            }
+          }
+        );
       },
     );
   }

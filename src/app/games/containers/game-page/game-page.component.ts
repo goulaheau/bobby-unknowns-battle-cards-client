@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute }               from '@angular/router';
+import { ActivatedRoute, Router }       from '@angular/router';
 import { Message }                      from '../../../core/models/message';
 import { GamesService }                 from '../../../core/services/games.service';
 import { User }                         from '../../../auth/models/user';
@@ -7,6 +7,8 @@ import { AuthService }                  from '../../../auth/services/auth.servic
 import { Card }                         from '../../../decks/models/card';
 import { CardValue }                    from '../../models/card-value';
 import { Game }                         from '../../models/game';
+
+declare let $: any;
 
 @Component({
   selector: 'app-game-page',
@@ -20,11 +22,13 @@ export class GamePageComponent implements OnInit, OnDestroy {
   user: User;
   cardToPlay: Card | null;
   attacker: CardValue | null;
+  winner: User;
 
   constructor(
     private route: ActivatedRoute,
     private gamesService: GamesService,
-    private authService: AuthService) {
+    private authService: AuthService,
+    private router: Router) {
   }
 
   ngOnInit(): void {
@@ -42,12 +46,17 @@ export class GamePageComponent implements OnInit, OnDestroy {
         });
       },
     );
+
+    $('#modalWinner').on('hidden.bs.modal', () => {
+      this.router.navigate(['']);
+    });
   }
 
   getGame(): void {
     this.gamesService.get(this.game_id).subscribe(
       game => {
         this.game = game;
+        this.checkIfFinished();
       },
     );
   }
@@ -62,6 +71,8 @@ export class GamePageComponent implements OnInit, OnDestroy {
         ) {
           this.sendMessage({ action: 'init', payload: null });
         }
+
+        this.checkIfFinished();
       },
     );
   }
@@ -209,15 +220,16 @@ export class GamePageComponent implements OnInit, OnDestroy {
         payload: {
           emitter: this.user.id,
           attacker: this.attacker.card.id,
-          victim: victim.card.id,
+          victim: victim === 'user' ? 'user' : victim.card.id,
         },
-      });
+      })
+      ;
 
       this.sendMessage({
         action: 'attack',
         payload: {
           attacker: this.attacker.card.id,
-          victim: victim.card.id,
+          victim: victim === 'user' ? 'user' : victim.card.id,
         },
       });
 
@@ -228,75 +240,108 @@ export class GamePageComponent implements OnInit, OnDestroy {
   actionAttack(message: Message): void {
     let attacker = null;
     let victim   = null;
-    if (message.payload.emitter === this.game.owner.id) {
-      this.game.owner_board_card_values.forEach(cardValues => {
-        if (cardValues.card.id === message.payload.attacker) {
-          attacker = cardValues;
-        }
-      });
 
-      this.game.opponent_board_card_values.forEach(cardValues => {
-        if (cardValues.card.id === message.payload.victim) {
-          victim = cardValues;
-        }
-      });
+    if (message.payload.victim === 'user') {
+      if (message.payload.emitter === this.game.owner.id) {
+        this.game.owner_board_card_values.forEach(cardValues => {
+          if (cardValues.card.id === message.payload.attacker) {
+            attacker = cardValues;
+          }
+        });
 
-      if (attacker && victim) {
-        victim.health -= attacker.strength;
-        attacker.health -= victim.strength;
-        attacker.can_attack = false;
-
-        if (attacker.health <= 0) {
-          this.game.owner_board_card_values = this.game.owner_board_card_values.filter(
-            cardValue => cardValue.card.id !== attacker.card.id,
-          );
-
-          this.game.owner_graveyard_cards = [...this.game.owner_graveyard_cards, attacker.card];
-        }
-        if (victim.health <= 0) {
-          this.game.opponent_board_card_values = this.game.opponent_board_card_values.filter(
-            cardValue => cardValue.card.id !== victim.card.id,
-          );
-
-          this.game.opponent_graveyard_cards = [...this.game.opponent_graveyard_cards, victim.card];
+        if (attacker) {
+          this.game.opponent_health -= attacker.strength;
+          attacker.can_attack = false;
+          this.checkIfFinished();
+        } else {
+          this.getGame();
         }
       } else {
-        this.getGame();
+        this.game.opponent_board_card_values.forEach(cardValues => {
+          if (cardValues.card.id === message.payload.attacker) {
+            attacker = cardValues;
+          }
+        });
+
+        if (attacker) {
+          this.game.owner_health -= attacker.strength;
+          attacker.can_attack = false;
+          this.checkIfFinished();
+        } else {
+          this.getGame();
+        }
       }
     } else {
-      this.game.opponent_board_card_values.forEach(cardValues => {
-        if (cardValues.card.id === message.payload.attacker) {
-          attacker = cardValues;
-        }
-      });
+      if (message.payload.emitter === this.game.owner.id) {
+        this.game.owner_board_card_values.forEach(cardValues => {
+          if (cardValues.card.id === message.payload.attacker) {
+            attacker = cardValues;
+          }
+        });
 
-      this.game.owner_board_card_values.forEach(cardValues => {
-        if (cardValues.card.id === message.payload.victim) {
-          victim = cardValues;
-        }
-      });
+        this.game.opponent_board_card_values.forEach(cardValues => {
+          if (cardValues.card.id === message.payload.victim) {
+            victim = cardValues;
+          }
+        });
 
-      if (attacker && victim) {
-        victim.health -= attacker.strength;
-        attacker.health -= victim.strength;
-        attacker.can_attack = false;
+        if (attacker && victim) {
+          victim.health -= attacker.strength;
+          attacker.health -= victim.strength;
+          attacker.can_attack = false;
 
-        if (attacker.health <= 0) {
-          this.game.opponent_board_card_values = this.game.opponent_board_card_values.filter(
-            cardValue => cardValue.card.id !== attacker.card.id,
-          );
+          if (attacker.health <= 0) {
+            this.game.owner_board_card_values = this.game.owner_board_card_values.filter(
+              cardValue => cardValue.card.id !== attacker.card.id,
+            );
 
-          this.game.opponent_graveyard_cards = [...this.game.opponent_graveyard_cards, attacker.card];
-        }
-        if (victim.health <= 0) {
-          this.game.owner_board_card_values = this.game.owner_board_card_values.filter(
-            cardValue => cardValue.card.id !== victim.card.id,
-          );
+            this.game.owner_graveyard_cards = [...this.game.owner_graveyard_cards, attacker.card];
+          }
+          if (victim.health <= 0) {
+            this.game.opponent_board_card_values = this.game.opponent_board_card_values.filter(
+              cardValue => cardValue.card.id !== victim.card.id,
+            );
 
-          this.game.owner_graveyard_cards = [...this.game.owner_graveyard_cards, victim.card];
+            this.game.opponent_graveyard_cards = [...this.game.opponent_graveyard_cards, victim.card];
+          }
+        } else {
+          this.getGame();
         }
       } else {
-        this.getGame();
+        this.game.opponent_board_card_values.forEach(cardValues => {
+          if (cardValues.card.id === message.payload.attacker) {
+            attacker = cardValues;
+          }
+        });
+
+        this.game.owner_board_card_values.forEach(cardValues => {
+          if (cardValues.card.id === message.payload.victim) {
+            victim = cardValues;
+          }
+        });
+
+        if (attacker && victim) {
+          victim.health -= attacker.strength;
+          attacker.health -= victim.strength;
+          attacker.can_attack = false;
+
+          if (attacker.health <= 0) {
+            this.game.opponent_board_card_values = this.game.opponent_board_card_values.filter(
+              cardValue => cardValue.card.id !== attacker.card.id,
+            );
+
+            this.game.opponent_graveyard_cards = [...this.game.opponent_graveyard_cards, attacker.card];
+          }
+          if (victim.health <= 0) {
+            this.game.owner_board_card_values = this.game.owner_board_card_values.filter(
+              cardValue => cardValue.card.id !== victim.card.id,
+            );
+
+            this.game.owner_graveyard_cards = [...this.game.owner_graveyard_cards, victim.card];
+          }
+        } else {
+          this.getGame();
+        }
       }
     }
   }
@@ -335,6 +380,20 @@ export class GamePageComponent implements OnInit, OnDestroy {
         ...this.game.owner_hand_cards,
         message.payload.card_draw,
       ];
+    }
+  }
+
+  checkIfFinished(): void {
+    if (this.game.turn !== null) {
+      setTimeout(() => {
+        if (this.game.owner_health <= 0) {
+          this.winner = this.game.opponent;
+          $('#modalWinner').modal('show');
+        } else if (this.game.opponent_health <= 0) {
+          this.winner = this.game.owner;
+          $('#modalWinner').modal('show');
+        }
+      }, 100);
     }
   }
 
