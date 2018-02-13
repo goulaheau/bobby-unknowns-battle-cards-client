@@ -18,6 +18,6 @@ import * as Auth from '../../store/actions/auth.actions';
 export class SignUpComponent extends LoginComponent implements OnInit {
 
   onSubmit($event: Authenticate) {
-    this.store.dispatch(new Auth.Register($event));
+    this.store.dispatch(new Auth.Login($event));
   }
 }

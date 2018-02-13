@@ -17,7 +17,7 @@ import { AuthService } from '../../../auth/services/auth.service';
 export class DeckFormPageComponent implements OnInit {
   deck$: Observable<Deck> = of({});
   cards$: Observable<Card[]>;
-  user_id: number;
+  userId: number;
 
   constructor(private route: ActivatedRoute,
               private decksService: DecksService,
@@ -27,7 +27,7 @@ export class DeckFormPageComponent implements OnInit {
 
   ngOnInit() {
     this.authService.current_user().subscribe(
-      user => this.user_id = user.id,
+      user => this.userId = user.id,
     );
 
     this.cards$ = this.cardsService.getAll();
@@ -42,7 +42,7 @@ export class DeckFormPageComponent implements OnInit {
   }
 
   onSave(deck: Deck): void {
-    deck.user = this.user_id;
+    deck.user = this.userId;
     deck.cards = this.cardsToIds(deck.cards);
 
     this.decksService.post(deck).subscribe(

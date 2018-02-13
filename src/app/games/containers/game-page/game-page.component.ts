@@ -366,8 +366,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
       this.game.opponent_hand_cards = [
         ...this.game.opponent_hand_cards,
-        message.payload.card_draw,
+        ...message.payload.cards_drawn,
       ];
+
+      message.payload.cards_drawn.forEach(card_drawn => {
+        this.game.opponent_deck_cards = this.game.opponent_deck_cards.filter(
+          deck_card => deck_card.id !== card_drawn.id
+        );
+      });
     } else {
       this.game.player_turn = this.game.owner.id;
       this.game.owner_mana  = Math.ceil(this.game.turn / 2);
@@ -378,8 +384,14 @@ export class GamePageComponent implements OnInit, OnDestroy {
 
       this.game.owner_hand_cards = [
         ...this.game.owner_hand_cards,
-        message.payload.card_draw,
+        ...message.payload.cards_drawn,
       ];
+
+      message.payload.cards_drawn.forEach(card_drawn => {
+        this.game.owner_deck_cards = this.game.owner_deck_cards.filter(
+          deck_card => deck_card.id !== card_drawn.id
+        );
+      });
     }
   }
 

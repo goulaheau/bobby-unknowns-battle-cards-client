@@ -1,6 +1,8 @@
 export interface Game {
   id?: number;
 
+  rule?: any;
+
   turn?: number;
   player_turn?: any;
 

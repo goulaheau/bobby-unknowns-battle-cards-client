@@ -1,4 +1,11 @@
-import { Component, OnInit, Input, Output, EventEmitter, HostBinding } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  Input,
+  Output,
+  EventEmitter,
+  HostBinding,
+} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Authenticate } from '../../models/user';
 import { fadeInAnimation } from '../../../shared/animations/fade-in.animation';
@@ -7,7 +14,7 @@ import { fadeInAnimation } from '../../../shared/animations/fade-in.animation';
   selector: 'app-login-form',
   animations: [fadeInAnimation],
   templateUrl: './login-form.component.html',
-  styleUrls: ['./login-form.component.scss']
+  styleUrls: ['./login-form.component.scss'],
 })
 export class LoginFormComponent implements OnInit {
   @Input()
@@ -19,6 +26,7 @@ export class LoginFormComponent implements OnInit {
       this.form.enable();
     }
   }
+
   _pending: boolean;
 
   @Input() errorMessage: string | null;
@@ -26,10 +34,9 @@ export class LoginFormComponent implements OnInit {
   @Output() submitted = new EventEmitter<Authenticate>();
 
   form: FormGroup = this.fb.group({
-    username: ['admin1@test.com', Validators.required],
-    password: ['12345678', Validators.required]
+    username: ['', Validators.required],
+    password: ['', Validators.required],
   });
-
 
   @HostBinding('@fadeInAnimation')
   public animatePage = true;

@@ -3,35 +3,33 @@
     <div class="col">
       <h2>
         Les parties
-        <button
-          type="button"
-          class="btn btn-sm btn-outline-primary"
-          data-toggle="modal"
-          data-target="#newGameModal"
-        >
+        <button type="button"
+                class="btn btn-sm btn-outline-primary"
+                data-toggle="modal"
+                data-target="#newGameModal">
           <i class="fa fa-plus"></i>
         </button>
       </h2>
 
       <ng-container *ngIf="games$ | async as games">
-        <ng-container *ngIf="decks$ | async as decks">
-          <app-game-list
-            [games]="games"
-            [decks]="decks"
-            [user]="user_id"
-            (join)="onJoin($event)"
-          >
+        <ng-container *ngIf="decks">
+          <app-game-list [games]="games"
+                         [decks]="decks"
+                         [user]="user_id"
+                         (join)="onJoin($event)">
           </app-game-list>
         </ng-container>
       </ng-container>
     </div>
   </div>
 
-  <app-game-create-modal
-    *ngIf="decks$ | async as decks"
-    modalName="newGameModal"
-    [decks]="decks"
-    (create)="onCreate($event)"
-  >
-  </app-game-create-modal>
+  <ng-container *ngIf="decks">
+    <ng-container *ngIf="rules$ | async as rules">
+      <app-game-create-modal modalName="newGameModal"
+                             [decks]="decks"
+                             [rules]="rules"
+                             (create)="onCreate($event)">
+      </app-game-create-modal>
+    </ng-container>
+  </ng-container>
 </div>

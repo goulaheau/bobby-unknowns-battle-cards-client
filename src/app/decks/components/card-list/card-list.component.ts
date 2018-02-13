@@ -11,6 +11,7 @@ import { Deck } from '../../models/deck';
 export class CardListComponent implements OnInit {
   @Input() cards: Card[];
   @Input() deck: Deck;
+  @Input() editable: boolean;
 
   constructor() { }
 

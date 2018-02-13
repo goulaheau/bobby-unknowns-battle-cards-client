@@ -16,6 +16,7 @@
       <button
         *ngIf="number(card.id) === 0"
         (click)="modifyNumber('+', card)"
+        [disabled]="!editable"
         type="button" class="btn btn-sm btn-outline-primary">
         <i class="fa fa-plus"></i>
       </button>
@@ -23,6 +24,7 @@
       <button
         *ngIf="number(card.id) > 0"
         (click)="modifyNumber('-', card)"
+        [disabled]="!editable"
         type="button" class="btn btn-sm btn-outline-success">
         <i class="fa fa-check"></i>
       </button>

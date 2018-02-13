@@ -16,6 +16,7 @@ import { AppComponent }      from './containers/app/app.component';
 import { CardValuesService } from './services/card-values.service';
 import { DecksService }      from './services/decks.service';
 import { CardsService }      from './services/cards.service';
+import { RulesService }      from './services/rules.service';
 import { UsersService }      from './services/users.service';
 import { WebSocketService }  from './services/web-socket.service';
 import { GamesService }      from './services/games.service';
@@ -54,6 +55,7 @@ export class CoreModule {
         UsersService,
         GamesService,
         CardValuesService,
+        RulesService,
       ],
     };
   }

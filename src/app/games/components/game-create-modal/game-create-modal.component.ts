@@ -8,6 +8,7 @@ import {
 }               from '@angular/core';
 import { Deck } from '../../../decks/models/deck';
 import { Game } from '../../models/game';
+import { Rule } from '../../models/rule';
 
 declare var $: any;
 
@@ -19,11 +20,13 @@ declare var $: any;
 })
 export class GameCreateModalComponent implements OnInit {
   deck: number;
+  rule: number;
 
   @Input() modalName: string;
   @Input() decks: Deck[];
+  @Input() rules: Rule[];
 
-  @Output() create = new EventEmitter<{ deck: number }>();
+  @Output() create = new EventEmitter<{ deck: number, rule: number }>();
 
   constructor() {
   }
@@ -32,7 +35,7 @@ export class GameCreateModalComponent implements OnInit {
   }
 
   onCreate(): void {
-    this.create.emit({ deck: this.deck });
+    this.create.emit({ deck: this.deck, rule: this.rule });
     $(`#${this.modalName}`).modal('hide');
   }
 }

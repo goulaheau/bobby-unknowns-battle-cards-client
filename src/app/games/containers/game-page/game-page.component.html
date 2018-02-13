@@ -102,6 +102,11 @@
               </div>
             </ng-container>
           </div>
+          <div class="col">
+            <div class="card">
+              {{ game.owner_graveyard_cards.length }}
+            </div>
+          </div>
         </ng-container>
         <ng-container *ngIf="user.id !== game.owner.id">
           <div *ngFor="let cardValue of game.opponent_board_card_values"
@@ -124,6 +129,11 @@
                 {{ cardValue.health }} Vie
               </div>
             </ng-container>
+          </div>
+          <div class="col">
+            <div class="card">
+              {{ game.opponent_graveyard_cards.length }}
+            </div>
           </div>
         </ng-container>
       </div>
@@ -151,6 +161,11 @@
               </div>
             </ng-container>
           </div>
+          <div class="col">
+            <div class="card">
+              {{ game.owner_deck_cards.length }}
+            </div>
+          </div>
         </ng-container>
         <ng-container *ngIf="user.id !== game.owner.id">
           <div *ngFor="let card of game.opponent_hand_cards"
@@ -173,6 +188,11 @@
                 {{ card.health }} Vie
               </div>
             </ng-container>
+          </div>
+          <div class="col">
+            <div class="card">
+              {{ game.opponent_deck_cards.length }}
+            </div>
           </div>
         </ng-container>
       </div>

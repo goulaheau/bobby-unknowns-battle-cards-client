@@ -2,6 +2,7 @@
   <div class="row" *ngIf="deck$ | async as deck">
     <div class="col">
       <app-deck-form
+        (userId)="userId"
         [deck]="deck"
         [cards]="cards$ | async"
         (save)="onSave($event)"

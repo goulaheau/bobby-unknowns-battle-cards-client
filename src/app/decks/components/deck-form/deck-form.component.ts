@@ -14,6 +14,7 @@ import { Card } from '../../models/card';
 export class DeckFormComponent implements OnInit {
   @Input() deck: Deck;
   @Input() cards: Card[];
+  @Input() userId: number;
 
   @Output() save = new EventEmitter<Deck>();
   @Output() update = new EventEmitter<Deck>();

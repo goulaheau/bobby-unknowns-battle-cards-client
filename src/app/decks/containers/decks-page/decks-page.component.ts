@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { DecksService } from '../../../core/services/decks.service';
-import { Observable } from 'rxjs/Observable';
-import { Deck } from '../../models/deck';
-import { AuthService } from '../../../auth/services/auth.service';
-import { HttpParams } from '@angular/common/http';
+import { User }              from '../../../auth/models/user';
+import { DecksService }      from '../../../core/services/decks.service';
+import { Observable }        from 'rxjs/Observable';
+import { Deck }              from '../../models/deck';
+import { AuthService }       from '../../../auth/services/auth.service';
 
 @Component({
   selector: 'app-decks-page',
@@ -11,24 +11,29 @@ import { HttpParams } from '@angular/common/http';
   styleUrls: ['./decks-page.component.scss'],
 })
 export class DecksPageComponent implements OnInit {
-  decks$: Observable<Deck[]>;
-  params: HttpParams;
+  decks: Deck[];
+  user: User;
 
-  constructor(private decksService: DecksService,
-              private authService: AuthService) { }
+  constructor(
+    private decksService: DecksService,
+    private authService: AuthService) { }
 
   ngOnInit() {
     this.authService.current_user().subscribe(
       user => {
-        this.params = new HttpParams().set('user', user.id.toString());
-        this.decks$ = this.decksService.getAll(this.params);
+        this.user   = user;
+        this.decksService
+          .getAll()
+          .subscribe(
+            decks => this.decks = decks.filter(deck => deck.user === null || deck.user === this.user.id)
+          );
       },
     );
   }
 
-  onDelete(deck: Deck): void {
-    this.decksService.delete(deck.id).subscribe(
-      res => this.decks$ = this.decksService.getAll(this.params),
+  onDelete(deckToDelete: Deck): void {
+    this.decksService.delete(deckToDelete.id).subscribe(
+      deckDeleted => this.decks.filter(deck => deck.id !== deckDeleted.id),
     );
   }
 }
